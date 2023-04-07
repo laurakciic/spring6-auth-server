@@ -14,6 +14,9 @@ import org.springframework.security.web.authentication.LoginUrlAuthenticationEnt
 @Configuration
 public class SecurityConfig {
 
+    // setting up functionality for OAuth auth server
+    // grants explicit endpoints to be available for use
+    // variety of endpoints being exposed such as requesting an auth token, to validate an auth token...
     @Bean
     @Order(1)
     public SecurityFilterChain authorizationServerSecurityFilterChain(HttpSecurity http)
@@ -30,6 +33,23 @@ public class SecurityConfig {
                 )
                 // Accept access tokens for User Info and/or Client Registration
                 .oauth2ResourceServer(OAuth2ResourceServerConfigurer::jwt);
+
+        return http.build();
+    }
+
+    // more of a catch saying that we are going to secure everything else
+    // requires all other things to be secure except for form login
+    @Bean
+    @Order(2)
+    public SecurityFilterChain defaultSecurityFilterChain(HttpSecurity http)
+            throws Exception {
+        http
+                .authorizeHttpRequests((authorize) -> authorize
+                        .anyRequest().authenticated()
+                )
+                // Form login handles the redirect to the login page from the
+                // authorization server filter chain
+                .formLogin(Customizer.withDefaults());
 
         return http.build();
     }
